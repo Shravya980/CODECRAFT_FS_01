@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Authentication</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f2d;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #1a1a40;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      width: 300px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
+    }
+    h2 {
+      color: #ff4c60;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 6px;
+    }
+    button {
+      background: #ff4c60;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      width: 100%;
+      margin: 10px 0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #ff2e63;
+    }
+    #message {
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    a {
+      color: #ff4c60;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2 id="formTitle">Login</h2>
+    <input type="text" id="username" placeholder="Username" required><br>
+    <input type="password" id="password" placeholder="Password" required><br>
+    <button onclick="handleAuth()">Submit</button>
+    <p id="toggleForm">Don’t have an account? <a onclick="switchForm()">Register</a></p>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    let isLogin = true;
+
+    function switchForm() {
+      isLogin = !isLogin;
+      document.getElementById("formTitle").innerText = isLogin ? "Login" : "Register";
+      document.querySelector("button").innerText = isLogin ? "Login" : "Register";
+      document.getElementById("toggleForm").innerHTML = 
+        isLogin ? `Don’t have an account? <a onclick="switchForm()">Register</a>` 
+                : `Already have an account? <a onclick="switchForm()">Login</a>`;
+      document.getElementById("message").innerText = "";
+    }
+
+    function handleAuth() {
+      let username = document.getElementById("username").value;
+      let password = document.getElementById("password").value;
+      let message = document.getElementById("message");
+
+      if (!username || !password) {
+        message.innerText = "⚠ Please fill all fields!";
+        return;
+      }
+
+      if (isLogin) {
+        let storedUser = localStorage.getItem(username);
+        if (!storedUser) {
+          message.innerText = "❌ User not found!";
+          return;
+        }
+        let storedPass = JSON.parse(storedUser).password;
+        if (storedPass === password) {
+          message.innerText = "✅ Login successful!";
+          localStorage.setItem("loggedInUser", username);
+          setTimeout(() => window.location.href = "dashboard.html", 1000);
+        } else {
+          message.innerText = "❌ Incorrect password!";
+        }
+      } else {
+        if (localStorage.getItem(username)) {
+          message.innerText = "⚠ User already exists!";
+          return;
+        }
+        localStorage.setItem(username, JSON.stringify({ username, password }));
+        message.innerText = "✅ Registration successful! Please login.";
+        switchForm();
+      }
+    }
+  </script>
+
+</body>
+</html>
